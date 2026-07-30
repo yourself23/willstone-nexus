@@ -14,4 +14,3 @@ package-lock.json
 .cache/
 .npm/
 .DS_Store
-mempool-listener.js
