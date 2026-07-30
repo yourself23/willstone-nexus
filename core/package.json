@@ -1,0 +1,16 @@
+{
+  "name": "willstone-nexus-infra-expansion",
+  "version": "2.0.0",
+  "description": "Willstone Nexus - Infrastructure Expansion (Recreation, Living Quarters, Health Priority)",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.3"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "swarm_id": "willstone_nexus_sovereign_swarm",
+  "target_chain_id": 421614,
+  "gas_policy_id": "81dc7875-08c6-42a4-9c54-bfea5a5eafcb",
+  "nodes": [
+    { "id": "nexus-core-01", "role": "MAIN_ROUTER", "proxy_port": 3001, "weight": 100, "concurrency_limit": 64 },
+    { "id": "nexus-core-02", "role": "BACKUP_ROUTER", "proxy_port": 3002, "weight": 80, "concurrency_limit": 64 },
+    { "id": "nexus-worker-03", "role": "CONSENSUS_VALIDATOR", "proxy_port": 3003, "weight": 50, "concurrency_limit": 32 },
+    { "id": "nexus-worker-04", "role": "SHARD_PROCESSOR", "proxy_port": 3004, "weight": 50, "concurrency_limit": 32 },
+    { "id": "nexus-worker-05", "role": "STATE_MONITOR", "proxy_port": 3005, "weight": 30, "concurrency_limit": 32 },
+    { "id": "nexus-worker-06", "role": "TELEMETRY_LOGGER", "proxy_port": 3006, "weight": 20, "concurrency_limit": 32 }
+  ]
+}

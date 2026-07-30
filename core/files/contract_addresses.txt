@@ -1,0 +1,14 @@
+==============================================================================
+WILLSTONE NEXUS: DECENTRALIZED SMART CONTRACT ARCHITECTURE DATABASE
+==============================================================================
+[SYSTEM CONTRACT LABELS & IMMUTABLE CORE DESTINATIONS]
+
+1) Swarm Reward Escrow Ledger (Arbitrum Sepolia):
+   0x8f7c9a44fb2b168e3e3b97dc218b31a39ff4ef21
+
+2) Core Infrastructure Proxy Router:
+   0x32c53d0e2e50cf16db2c2197f485dbbc38c9284
+
+3) SynthSwarm Native ERC-20 Token Factory:
+   0x99a13b827df61a8dc4e8bb24d57ee5b19e2bb398
+==============================================================================

@@ -1,0 +1,13 @@
+{
+  "name": "nexus-data-parser-service",
+  "version": "1.0.0",
+  "description": "High-Velocity SEO & Data Parsing Microservice API",
+  "main": "core/server.js",
+  "scripts": {
+    "start": "node core/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  }
+}

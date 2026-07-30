@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-nexus-darker text-gray-100 font-mono;
+    background-image: 
+      radial-gradient(ellipse at 20% 50%, rgba(0, 255, 136, 0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(123, 47, 255, 0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(0, 212, 255, 0.02) 0%, transparent 50%);
+  }
+}
+
+@layer components {
+  .panel-sovereign {
+    @apply bg-nexus-panel border border-nexus-border rounded-lg backdrop-blur-sm;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  }
+
+  .glow-border {
+    @apply border border-nexus-glow/30;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.1), inset 0 0 15px rgba(0, 255, 136, 0.05);
+  }
+
+  .glow-text {
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+  }
+
+  .btn-sovereign {
+    @apply px-4 py-2 rounded-md font-bold text-sm uppercase tracking-wider transition-all duration-300;
+    @apply bg-gradient-to-r from-nexus-glow/20 to-nexus-glow/10 border border-nexus-glow/40;
+    @apply hover:from-nexus-glow/30 hover:to-nexus-glow/20 hover:border-nexus-glow/60;
+    @apply active:scale-95;
+  }
+
+  .btn-void {
+    @apply px-4 py-2 rounded-md font-bold text-sm uppercase tracking-wider transition-all duration-300;
+    @apply bg-gradient-to-r from-nexus-void/20 to-nexus-void/10 border border-nexus-void/40;
+    @apply hover:from-nexus-void/30 hover:to-nexus-void/20 hover:border-nexus-void/60;
+    @apply active:scale-95;
+  }
+
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0a0f; }
+::-webkit-scrollbar-thumb { background: #1a1a2e; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #2a2a4e; }

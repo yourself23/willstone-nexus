@@ -1,0 +1,15 @@
+==============================================================================
+WILLSTONE NEXUS: ARBITRUM SEPOLIA TEST TRANSACTION HASH REFERENCE
+==============================================================================
+1) Standard ETH Transfer:
+   0x12a9b343867cdb215830eb198fdb523c9ff4ef210c49735d46e3be538413b11c
+
+2) Contract Interaction / Node Validation:
+   0x7b6c53d0e2e50cf16db2c2197f485dbbc38c9284488390b12b5b4e3cd96c8e31
+
+3) Token Mint / Claim Event:
+   0x44c32b5ee068dc44fbc7514a67bbadbc8923a1a9a836d50ff227eb0b1de5540e
+
+4) Sponsored Gas Operation / SynthSwarm Proxy:
+   0x89e13b827df61a8dc4e8bb24d57ee5b19e2bb398725f18ccebb2586e3fcdb20a
+==============================================================================

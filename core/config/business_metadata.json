@@ -1,0 +1,8 @@
+{
+  "BUSINESS_LEGAL_NAME": "Willstone Nexus Systems",
+  "PRODUCTION_WEB_PAGE": "https://emergent.host",
+  "STRIPE_GATEWAY_STATUS": "PENDING_VERIFICATION",
+  "CONNECTED_LEDGER_WALLETS": [
+    "0x8f7c9a44fb2b168e3e3b97dc218b31a39ff4ef21"
+  ]
+}

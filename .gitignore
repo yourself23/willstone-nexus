@@ -1,0 +1,17 @@
+# Security: Protect your private keys and 70-line RPC node list
+.env
+.env.local
+*.env
+
+# Dependencies: Prevent heavy modules from bloating your repository
+node_modules/
+/dist
+/build
+package-lock.json
+
+# Caching & Logs: Keep local processing garbage out of commits
+*.log
+.cache/
+.npm/
+.DS_Store
+mempool-listener.js
