@@ -1,89 +1,81 @@
-const { WebSocketProvider, ethers } = require("ethers");
+const { JsonRpcProvider, ethers } = require("ethers");
 require("dotenv").config();
 
-const ARBITRUM_WS_URL = "wss://arb1.arbitrum.io/feed";
+// 💡 Dynamically load your HTTPS endpoint from your .env file
+const HTTP_RPC_URL = process.env.ALCHEMY_RPC_URL || "https://arbitrum.io";
+const MIN_ETH_VOLUME_THRESHOLD = 0.01; 
 
-// 1. Strict Volume Threshold Filter (Denominated in ETH value)
-const MIN_ETH_VOLUME_THRESHOLD = 5.0; // Ignores any swap smaller than 5.0 ETH
-
-// 2. High-Performance Local Token Contract Dictionary Map
 const TOKEN_DICTIONARY = {
     "0x82af49447d8a07e3bd95bd0d56f352415231daa1": "WETH",
     "0x2f2a2543b76a4166549f7aa28915a1a3ba827421": "WBTC",
-    "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8": "USDC.e",
     "0xaf88d065e77c8cc2239327c5edb3a432268e5831": "USDC",
-    "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9": "USDT",
-    "0xda10009cbd5d07dd0ddd651d4d1239b4c6a60289": "DAI",
-    "0x912ce59144191c1204e64559fe8253a0e49e6548": "ARB"
+    "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9": "USDT"
 };
 
-// Safe helper to dynamically resolve symbols or return truncated fallback addresses
 function resolveTokenSymbol(address) {
     if (!address) return "UNKNOWN";
     const lookup = address.toLowerCase();
     return TOKEN_DICTIONARY[lookup] || `${address.substring(0, 6)}...${address.substring(38)}`;
 }
 
-// 3. Define Advanced Decoded DEX Interface Functions
 const ROUTER_INTERFACE = new ethers.Interface([
     "function exactInputSingle((address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96)) external payable returns (uint256 amountOut)",
     "function swapExactTokensForTokens(uint256 amountIn, uint256 amountOutMinimum, address[] path, address to, uint256 deadline) external returns (uint256[] memory amounts)"
 ]);
 
-function logTargetAlert(title, message) {
-    console.log(`\n🔔 [${title.toUpperCase()}] ${message}`);
-}
-
 async function startAdvancedMempoolListener() {
-    console.log("⚡ Activating High-Speed Decoded Token Filter & Volume Guardian Engine...");
-    console.log(`📊 Current Filter Limit: Minimum ${MIN_ETH_VOLUME_THRESHOLD} ETH Value`);
+    console.log("⚡ Activating High-Speed HTTPS Block-Polling Tracker Engine...");
+    console.log(`📡 Targeting Native Endpoint: ${HTTP_RPC_URL}`);
+    console.log(`📊 Filter Limit: Minimum ${MIN_ETH_VOLUME_THRESHOLD} ETH Value`);
     
     try {
-        const provider = new WebSocketProvider(ARBITRUM_WS_URL);
-        console.log("🟢 Connection Established. Scanning signatures...");
+        // Enforce the standard JSON-RPC provider pattern for HTTPS connections
+        const provider = new JsonRpcProvider(HTTP_RPC_URL);
+        console.log("🟢 Connection Established. Scanning incoming blocks over HTTP...");
 
-        provider.on("pending", async (txHash) => {
+        provider.on("block", async (blockNumber) => {
             try {
-                const tx = await provider.getTransaction(txHash);
-                if (!tx || !tx.data || tx.data === "0x") return;
+                // Request the block along with all transaction objects
+                const block = await provider.getBlock(blockNumber, true);
+                if (!block || !block.prefetchedTransactions) return;
 
-                const methodId = tx.data.substring(0, 10).toLowerCase();
+                process.stdout.write("📦"); // Print block indicator
 
-                // 🟥 Uniswap V3 exactInputSingle Decoded Route
-                if (methodId === "0x04e45abe") {
-                    const decoded = ROUTER_INTERFACE.decodeFunctionData("exactInputSingle", tx.data);
-                    const params = decoded[0] || decoded;
+                for (const tx of block.prefetchedTransactions) {
+                    if (!tx || !tx.data || tx.data === "0x") continue;
+
+                    const methodId = tx.data.substring(0, 10).toLowerCase();
+
+                    if (methodId === "0x04e45abe") {
+                        const decoded = ROUTER_INTERFACE.decodeFunctionData("exactInputSingle", tx.data);
+                        const params = decoded;
+                        const parsedAmountIn = parseFloat(ethers.formatEther(params.amountIn || 0));
+                        
+                        if (parsedAmountIn < MIN_ETH_VOLUME_THRESHOLD) continue;
+
+                        const tokenInSym = resolveTokenSymbol(params.tokenIn);
+                        const tokenOutSym = resolveTokenSymbol(params.tokenOut);
+
+                        console.log(`\n\n🎯 [V3 MATCH] Block: ${blockNumber} | Hash: ${tx.hash}`);
+                        console.log(`   🔥 Volume: ${parsedAmountIn.toFixed(4)} ${tokenInSym} ➡️ ${tokenOutSym}`);
+                    }
                     
-                    // Parse raw data numbers natively into standard Ether denominations
-                    const parsedAmountIn = parseFloat(ethers.formatEther(params.amountIn));
-                    
-                    // Apply volume constraint filters instantly
-                    if (parsedAmountIn < MIN_ETH_VOLUME_THRESHOLD) return;
+                    else if (methodId === "0x38ed1739") {
+                        const decoded = ROUTER_INTERFACE.decodeFunctionData("swapExactTokensForTokens", tx.data);
+                        const parsedAmountIn = parseFloat(ethers.formatEther(decoded[0] || decoded || 0));
 
-                    const tokenInSym = resolveTokenSymbol(params.tokenIn);
-                    const tokenOutSym = resolveTokenSymbol(params.tokenOut);
+                        if (parsedAmountIn < MIN_ETH_VOLUME_THRESHOLD) continue;
 
-                    const alertMsg = `High-Volume V3 Swap! Counted: ${parsedAmountIn.toFixed(2)} ${tokenInSym} ➡️ ${tokenOutSym}`;
-                    logTargetAlert("Uniswap V3 High Volume Match", `${alertMsg}\n   Hash: ${txHash}\n   To Router: ${tx.to}`);
+                        const pathArray = decoded.path || decoded || [];
+                        const tokenInSym = resolveTokenSymbol(pathArray[0]);
+                        const tokenOutSym = resolveTokenSymbol(pathArray[pathArray.length - 1]);
+
+                        console.log(`\n\n🎯 [V2 MATCH] Block: ${blockNumber} | Hash: ${tx.hash}`);
+                        console.log(`   🔥 Volume: ${parsedAmountIn.toFixed(4)} ${tokenInSym} ➡️ ${tokenOutSym}`);
+                    }
                 }
-                
-                // 🟦 Uniswap V2 / SushiSwap swapExactTokensForTokens Decoded Route
-                else if (methodId === "0x38ed1739") {
-                    const decoded = ROUTER_INTERFACE.decodeFunctionData("swapExactTokensForTokens", tx.data);
-                    const parsedAmountIn = parseFloat(ethers.formatEther(decoded.amountIn || decoded[0]));
-
-                    if (parsedAmountIn < MIN_ETH_VOLUME_THRESHOLD) return;
-
-                    // Parse path hops array to map direct target conversions
-                    const pathArray = decoded.path || decoded[2] || [];
-                    const tokenInSym = resolveTokenSymbol(pathArray[0]);
-                    const tokenOutSym = resolveTokenSymbol(pathArray[pathArray.length - 1]);
-
-                    const alertMsg = `High-Volume V2 Swap! Counted: ${parsedAmountIn.toFixed(2)} ${tokenInSym} ➡️ ${tokenOutSym} (${pathArray.length} Hops)`;
-                    logTargetAlert("Uniswap V2 High Volume Match", `${alertMsg}\n   Hash: ${txHash}`);
-                }
-            } catch (err) {
-                // Suppress background node processing evictions silently
+            } catch (blockErr) {
+                // Gracefully catch internal missing block structures
             }
         });
     } catch (error) {
