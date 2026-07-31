@@ -9,7 +9,7 @@ BUILD_DIR="/home/timothyhuff25/willstone-nexus/build"
 # 1. Automated Log Truncation
 if [ -f "$LOG_FILE" ]; then
     FILE_SIZE=$(du -m "$LOG_FILE" | cut -f1)
-    if [ "$FILE_SIZE" -gt 50 ]; then
+    if [ "$FILE_SIZE" -gt 10 ]; then
         echo "" > "$LOG_FILE"
     fi
 fi
