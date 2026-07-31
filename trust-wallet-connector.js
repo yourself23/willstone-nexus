@@ -1,10 +1,12 @@
 const { ethers } = require("ethers");
+const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 
 const PROVIDER_URL = process.env.ALCHEMY_RPC_URL || "https://arbitrum.io";
 
-async function prepareTrustPayload() {
-    console.log("📲 Initializing Trust Wallet Payload Signer Engine...");
+async function prepareContractDeploymentPayload() {
+    console.log("📲 Initializing Trust Wallet Deployment Signer Engine...");
     const provider = new ethers.JsonRpcProvider(PROVIDER_URL);
     
     const key = process.env.TREASURY_PRIVATE_KEY;
@@ -16,21 +18,39 @@ async function prepareTrustPayload() {
     const wallet = new ethers.Wallet(key, provider);
     console.log(`🔒 Connected Wallet Address: ${wallet.address}`);
 
-    // Draft a baseline mock transaction payload for validation
+    // Automatically resolve the newly compiled token bytecode artifact file
+    const bytecodePath = path.join(__dirname, "build", "WillstoneUtilityToken.bin");
+    
+    if (!fs.existsSync(bytecodePath)) {
+        console.error("❌ Error: WillstoneUtilityToken.bin bytecode artifact not found in build directory. Run compile-loop.sh first.");
+        return;
+    }
+
+    // Read and format raw bytecode hex payload
+    let rawBytecode = fs.readFileSync(bytecodePath, "utf8").trim();
+    if (!rawBytecode.startsWith("0x")) {
+        rawBytecode = "0x" + rawBytecode;
+    }
+
+    // Append the initial supply argument constructor parameter to bytecode string (e.g., 1000000 tokens)
+    const abiCoder = new ethers.AbiCoder();
+    const encodedConstructorArgs = abiCoder.encode(["uint256"], [1000000]).substring(2);
+    const deploymentDataPayload = rawBytecode + encodedConstructorArgs;
+
     const txDraft = {
-        to: "0xc7F0e17931b253F659ad8D36bf39ee",
-        value: ethers.parseEther("0.001"),
-        gasLimit: 21000,
+        data: deploymentDataPayload,
+        value: 0,
+        gasLimit: 3000000, // Safe buffer for contract creation execution limits
         chainId: 42161 // Arbitrum One
     };
 
     try {
         const signedTx = await wallet.signTransaction(txDraft);
-        console.log("✅ Trust Wallet Compatible Signed Hex Generated:");
+        console.log("✅ Trust Wallet Compatible Deployment Hex Generated:");
         console.log(signedTx);
     } catch (err) {
         console.error("❌ Signing Failure:", err.message);
     }
 }
 
-prepareTrustPayload();
+prepareContractDeploymentPayload();
