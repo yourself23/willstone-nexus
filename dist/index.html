@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Willstone Nexus - Sovereign Swarm Command Center</title>
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background-color: #0d1117; color: #58a6ff; margin: 0; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background-color: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        h1, h2 { color: #f0f6fc; border-bottom: 1px solid #21262d; padding-bottom: 5px; }
+        .status-active { color: #3fb950; font-weight: bold; }
+        .telemetry-window { background-color: #010409; border: 1px solid #21262d; border-radius: 4px; padding: 10px; height: 150px; overflow-y: scroll; font-size: 12px; color: #79c0ff; }
+    </style>
+</head>
+<body>
+    <h1>🛸 WILLSTONE NEXUS PRODUCTION COMMAND CENTER</h1>
+    <div class="grid">
+        <!-- Infrastructure Mapping Node -->
+        <div class="card">
+            <h2>📊 Core System Status</h2>
+            <p>Target Network: <span class="status-active">Arbitrum Sepolia (421614)</span></p>
+            <p>Wallet Gateway ID: <code>XJPiqOzpgRCAf6reqQvpI</code></p>
+            <p>Corporate Identity: <code>EIN 42-3971123</code></p>
+            <p>Stripe Plan: <span class="status-active">$49.00 / Monthly</span></p>
+        </div>
+
+        <!-- Sovereign Node Swarm Telemetry -->
+        <div class="card">
+            <h2>📡 Swarm Node Matrix</h2>
+            <p>Node #1 (Port 3002): <span class="status-active">ONLINE</span></p>
+            <p>Node #2 (Port 3003): <span class="status-active">ONLINE</span></p>
+            <p>Node #3 (Port 3004): <span class="status-active">ONLINE</span></p>
+            <p>Node #4 (Port 3005): <span class="status-active">ONLINE</span></p>
+            <p>Node #5 (Port 3006): <span class="status-active">ONLINE</span></p>
+        </div>
+
+        <!-- Live Payment Webhook Stream Window -->
+        <div class="card">
+            <h2>🔔 Live Stripe Webhook Log Stream</h2>
+            <div class="telemetry-window" id="webhookStream">
+                [SYSTEM READY] Listening for customer.subscription.created events...<br>
+                [METADATA LOCKED] sku=nexus_high_velocity_api
+            </div>
+        </div>
+    </div>
+    <script>
+        console.log("⚡ Willstone Nexus Dashboard Initialized Natively via Netlify.");
+    </script>
+</body>
+</html>

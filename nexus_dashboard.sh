@@ -54,28 +54,29 @@ text_entry() {
     echo "Leave blank and press [Enter] to auto-select a random test hash."
     echo "=============================================================================="
     echo -n "Paste your Arbitrum Sepolia transaction hash (0x...): "
-    read -r tx_hash || true
+    read -r tx_hash
     
     if [ -z "$tx_hash" ]; then
         if [ -f core/files/test_hashes.txt ]; then
-            echo "🎲 Selecting a random test transaction hash..."
-            tx_hash=$(grep -oE "0x[a-fA-F0-9]{64}" core/files/test_hashes.txt | shuf -n 1 || echo "")
-            if [ -z "$tx_hash" ]; then
-                tx_hash="0x12a9b343867cdb215830eb198fdb523c9ff4ef210c49735d46e3be538413b11c"
-            fi
+            echo "🎲 No manual input detected. Selecting a random test transaction hash..."
+            tx_hash=$(grep -oE "0x[a-fA-F0-9]{64}" core/files/test_hashes.txt | shuf -n 1)
             echo "📍 Selected Hash: $tx_hash"
         else
-            tx_hash="0x12a9b343867cdb215830eb198fdb523c9ff4ef210c49735d46e3be538413b11c"
-            echo "📍 Fallback Hash Set: $tx_hash"
+            echo "❌ Input is blank and core/files/test_hashes.txt was not found."
+            echo "=============================================================================="
+            read -p "Press [Enter] to return..."
+            return
         fi
     fi
     
+    # Save a record for the desktop synchronization matrix
     echo "Transaction Hash Logged: $tx_hash on $(date)" > core/files/latest_entry.txt
     
     if [ -f core/scripts/track_tx.js ]; then
-        node core/scripts/track_tx.js "$tx_hash" || true
+        node core/scripts/track_tx.js "$tx_hash"
     else
-        echo "✅ Hash successfully recorded inside core/files/latest_entry.txt."
+        echo "✅ Hash successfully recorded in core/files/latest_entry.txt."
+        echo "💡 Note: To run a live block lookup, verify that core/scripts/track_tx.js is present."
     fi
     echo "=============================================================================="
     read -p "Press [Enter] to return..."
@@ -83,13 +84,23 @@ text_entry() {
 
 promo_registry() {
     clear
-    echo "💵 --- REAL-TIME USD PREPAID CARD LEDGER MONITOR ---"
-    echo "=============================================================================="
-    if [ -f core/files/usd_sales_ledger.txt ]; then
-        cat core/files/usd_sales_ledger.txt
+    echo "🎟️  --- AUTOMATED CONTRACT SYSTEM DATABASE ---"
+    if [ -f core/files/contract_addresses.txt ]; then
+        cat core/files/contract_addresses.txt
+        echo ""
+        echo -n "Select an Address to Auto-Inject into active testing payload [1-3]: "
+        read -r choice
+        case "$choice" in
+            1) target_addr=$(grep -oE "0x[a-fA-F0-9]{40}" core/files/contract_addresses.txt | sed -n "1p") ;;
+            2) target_addr=$(grep -oE "0x[a-fA-F0-9]{40}" core/files/contract_addresses.txt | sed -n "2p") ;;
+            3) target_addr=$(grep -oE "0x[a-fA-F0-9]{40}" core/files/contract_addresses.txt | sed -n "3p") ;;
+            *) echo "🎲 No input. Auto-selecting random production index..."; target_addr=$(grep -oE "0x[a-fA-F0-9]{40}" core/files/contract_addresses.txt | shuf -n 1) ;;
+        esac
+        echo "📍 Target Destination Captured: $target_addr"
+        echo "Selected Contract Address: $target_addr on $(date)" > core/files/latest_entry.txt
+        echo "✅ Address successfully logged inside core/files/latest_entry.txt for Desktop Sync."
     else
-        echo "⏳ Awaiting direct third-party cash checkout hook entry."
-        echo "💡 Ready to load connected cards on incoming customer webhook events."
+        echo "❌ Local Database file not found."
     fi
     echo "=============================================================================="
     read -p "Press [Enter] to return..."
@@ -100,6 +111,8 @@ start_node() {
     echo "📋 --- INDEPENDENT SCHEDULER ACTIVITY LOGS ---"
     echo "=============================================================================="
     if [ -f core/files/marketing_logs.txt ]; then
+        echo "📊 Total Automated Runs: $(grep -c "Interval Execution Triggered" core/files/marketing_logs.txt || echo "0")"
+        echo "------------------------------------------------------------------------------"
         tail -n 15 core/files/marketing_logs.txt
     else
         echo "⏳ Initializing worker log output streams... Check back in a few moments."

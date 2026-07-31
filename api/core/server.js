@@ -1,9 +1,10 @@
 const express = require('express');
 const app = express();
-const PORT = 3005;
+const PORT = process.env.PORT || 3005;
 
 app.use(express.json());
 
+// Strict Explicit CORS Rule Specification Matrix
 const ALLOWED_ORIGIN = "https://untangle-collective.emergent.host";
 
 app.use((req, res, next) => {
@@ -11,10 +12,15 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-api-key");
   res.setHeader("Access-Control-Allow-Credentials", "true");
-  if (req.method === "OPTIONS") return res.status(200).end();
+
+  // Handle browser validation checks (Preflight OPTIONS) instantly
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
   next();
 });
 
+// Premium Statistics Pull Endpoints for your Front-End UI Dashboard
 app.get('/api/v1/node-stats', (req, res) => {
   res.json({
     status: "ONLINE",
@@ -24,7 +30,13 @@ app.get('/api/v1/node-stats', (req, res) => {
   });
 });
 
-app.listen(PORT, () => console.log(`✨ Engine is listening cleanly on port ${PORT}`));
+app.post('/api/v1/parse-metadata', (req, res) => {
+  const { rawHtml } = req.body;
+  if (!rawHtml) return res.status(400).json({ error: "Missing source html" });
+  res.json({ status: "SUCCESS", characterCount: rawHtml.length });
+});
+
+app.listen(PORT, () => console.log(`✨ Port 3005 Live with Safe CORS Maps for ${ALLOWED_ORIGIN}`));
 
 // Public Business Support & Customer Contact Routing Layer
 app.get('/api/v1/support', (req, res) => {

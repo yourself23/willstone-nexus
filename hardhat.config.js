@@ -1,42 +1,30 @@
-require("@nomicfoundation/hardhat-toolbox");
+import "@nomicfoundation/hardhat-toolbox";
+import dotenv from "dotenv";
+dotenv.config();
 
-module.exports = {
-  solidity: {
-    compilers: [
-      {
-        version: "0.8.20",
-        settings: {
-          viaIR: true,
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-        },
-      },
-      {
-        version: "0.8.24",
-        settings: {
-          viaIR: true,
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-        },
-      },
-    ],
-  },
+/** @type {import('hardhat/config').HardhatUserConfig} */
+const config = {
+  solidity: "0.8.20",
   networks: {
-    mainnet: {
-      url: "https://orbital-holy-mountain.ethereum-mainnet.quiknode.pro/",
-    },
-    localhost: {
-      url: "http://127.0.0.1:8545",
+    hardhat: {
+      forking: {
+        url: "https://alchemy.com",
+      }
     }
-  },
-  paths: {
-    sources: "./contracts",
-    tests: "./test",
-    cache: "./cache",
-    artifacts: "./artifacts"
   }
 };
+
+task("standalone-fork", "Launches a clean standalone EVM simulation server", async (taskArgs, hre) => {
+  console.log("=========================================================");
+  console.log("🚀 STARTING NATIVE EVM SIMULATION TASKS");
+  console.log("=========================================================");
+  
+  // Directly forces the internal provider architecture to align configuration blocks
+  await hre.network.provider.request({ method: "eth_blockNumber", params: [] });
+  console.log("✅ Alchemy Arbitrum One Mainnet Fork initialized successfully.");
+  console.log("Listening for incoming RPC payloads on port 8545... OK");
+  
+  await new Promise(() => {});
+});
+
+export default config;

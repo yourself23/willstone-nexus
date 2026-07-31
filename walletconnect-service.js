@@ -1,62 +1,51 @@
-const { Core } = require("@walletconnect/core");
-const { WalletKit } = require("@reown/walletkit");
-const { ethers } = require("ethers");
-require("dotenv").config();
+import { Core } from '@walletconnect/core';
+import { SignClient } from '@walletconnect/sign-client';
+import qrcode from 'qrcode-terminal';
+import dotenv from 'dotenv';
+dotenv.config();
 
-// Enforce test mode key bindings to bypass token clearance locks
-const PROJECT_ID = "7560e02988978ff8cafc6c25f5b1a550"; 
-const TREASURY_KEY = process.env.TREASURY_PRIVATE_KEY;
-const PROVIDER_URL = process.env.ALCHEMY_RPC_URL || "https://arbitrum.io";
+async function initVisualBridge() {
+  const projectId = process.env.WALLETCONNECT_PROJECT_ID || "5f8bf496dd97cb48b0d4aa3f7e251310";
+  const core = new Core({ projectId });
+  await core.start();
 
-if (!TREASURY_KEY) {
-    console.error("❌ Fatal Error: TREASURY_PRIVATE_KEY is missing.");
-    process.exit(1);
-}
-
-const wallet = new ethers.Wallet(TREASURY_KEY, new ethers.JsonRpcProvider(PROVIDER_URL, new ethers.Network("arbitrum", 42161), { staticNetwork: true }));
-
-async function startWalletKitEngine() {
-    console.log("🛰️ Initializing Headless WalletConnect Engine in UAT Test Mode...");
-    
-    const core = new Core({ projectId: PROJECT_ID });
-    const walletKit = await WalletKit.init({
-        core,
-        metadata: {
-            name: "Willstone Nexus Test Merchant Terminal",
-            description: "End-to-End Sandbox Checkout Simulator",
-            url: "https://github.com",
-            icons: ["https://githubusercontent.com"]
-        }
-    });
-
-    console.log(`🏪 Merchant Simulator Active. Receiver Address: ${wallet.address}`);
-
-    walletKit.on("session_proposal", async (proposal) => {
-        console.log(`\n📥 [TEST CHECKOUT] Incoming payment request from mobile device...`);
-        try {
-            const sessionNamespaces = {
-                eip155: {
-                    accounts: [`eip155:42161:${wallet.address}`],
-                    methods: ["eth_sendTransaction", "eth_signTransaction", "personal_sign"],
-                    events: ["chainChanged", "accountsChanged"]
-                }
-            };
-            // Approve the testing namespace session natively 
-            await walletKit.approveSession({ id: proposal.id, namespaces: sessionNamespaces });
-            console.log("✅ Checkout Session Approved! Customer and Merchant pathways linked.");
-        } catch (err) {
-            console.error("❌ Checkout Connection Refused:", err.message);
-            await walletKit.rejectSession({ id: proposal.id, reason: { code: 5000, message: "Rejected" } });
-        }
-    });
-
-    const pairingUri = process.argv[2];
-    if (pairingUri) {
-        console.log(`🔗 Pairing directly with customer checkout payload...`);
-        await walletKit.pair({ uri: pairingUri });
-    } else {
-        console.log("⏳ Standing by. Run script with your phone checkout QR code URI text.");
+  const signClient = await SignClient.init({
+    core,
+    metadata: {
+      name: "AppKit Platform",
+      description: "Automated Gateway Terminal",
+      url: "https://walletconnect.com",
+      icons: ["https://githubusercontent.com"]
     }
+  });
+
+  console.log("=========================================================");
+  console.log("✅ SYSTEM BRIDGE READY: ACTIVE TELEMETRY LINK ESTABLISHED");
+  console.log("=========================================================");
+
+  try {
+    const { uri, approval } = await signClient.connect({
+      optionalNamespaces: {
+        eip155: {
+          methods: ["eth_sendTransaction", "eth_signTransaction", "personal_sign", "eth_signTypedData"],
+          // FIX: Switch chain from 31337 to 42161 (Arbitrum Mainnet) to satisfy Trust Wallet's structural routing checks
+          chains: ["eip155:42161"],
+          events: ["accountsChanged", "chainChanged"]
+        }
+      }
+    });
+
+    if (uri) {
+      console.log("\n◈ OPEN TRUST WALLET SCANNER AND POINT CAMERA HERE:\n");
+      qrcode.generate(uri, { small: true });
+      console.log(`\nRaw Text Fallback: ${uri}\n`);
+    }
+
+    const session = await approval();
+    console.log(`\n✅ HANDSHAKE COMPLETE: Connected to ${session.peer.metadata.name}\n`);
+  } catch (err) {
+    console.error("❌ Transport Broadcast Failure:", err.message);
+  }
 }
 
-startWalletKitEngine().catch(console.error);
+initVisualBridge().catch(console.error);
