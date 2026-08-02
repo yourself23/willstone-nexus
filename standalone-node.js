@@ -1,27 +1,39 @@
-import hre from "hardhat";
+const http = require('http');
 
-async function main() {
-  console.log("=========================================================");
-  console.log("🚀 STARTING DIRECT STANDALONE EVM SIMULATION NODE");
-  console.log("=========================================================");
-  
-  // Directly force the internal network engine to fork your Alchemy endpoint
-  await hre.network.provider.request({
-    method: "hardhat_reset",
-    params: [
-      {
-        forking: {
-          jsonRpcUrl: "https://alchemy.com",
-        },
-      },
-    ],
-  });
+let currentBlock = 421090;
+const PORT = 8449;
 
-  console.log("✅ Alchemy Arbitrum One Mainnet Fork initialized successfully.");
-  console.log("Listening for incoming RPC payloads on port 8545... OK");
-  
-  // Keep the process alive to mimic an active local network daemon
-  await new Promise(() => {});
-}
+// Lightweight mock JSON-RPC response routing layer
+const server = http.createServer((req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+        try {
+            const json = JSON.parse(body);
+            let result = "0x0";
+            
+            if (json.method === 'eth_blockNumber') {
+                currentBlock++;
+                result = '0x' + currentBlock.toString(16);
+            }
+            
+            res.end(JSON.stringify({
+                jsonrpc: "2.0",
+                id: json.id || 1,
+                result: result
+            }));
+        } catch (e) {
+            res.end(JSON.stringify({ jsonrpc: "2.0", error: { code: -32700, message: "Parse error" }, id: null }));
+        }
+    });
+});
 
-main().catch(console.error);
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`=================================================`);
+    console.log(`📡 ARBITRUM ORBIT LIGHTWEIGHT L3 MOCK ENGINE ONLINE`);
+    console.log(`🔗 RPC ENDPOINT: http://localhost:${PORT}`);
+    console.log(`=================================================`);
+});

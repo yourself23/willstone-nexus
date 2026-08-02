@@ -1,0 +1,13 @@
+{
+  "wallets": [],
+  "contracts": [],
+  "keys": [],
+  "networks": [
+    {
+      "name": "Willstone Rollup Testnet",
+      "url": "https://alchemy.com",
+      "chainId": 12345,
+      "currencySymbol": "ETH"
+    }
+  ]
+}
